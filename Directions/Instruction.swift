@@ -5,6 +5,15 @@
 //  Created by TJ Usiyan on 2017/03/31.
 //  Copyright © 2017 Buttons and Lights LLC. All rights reserved.
 //
+enum BadInstructions {
+    case north
+    case east
+    case south
+    case west
+    case right
+    case left
+}
+
 
 enum Instruction {
     case left
@@ -80,31 +89,116 @@ func multyTravel(startLocation: Location, facingDirection: CardinalDirection, in
 
 func calculateBlocks(_ beginingLocation: Location, _ finalLocation: Location) -> Int {
 
-    let pointX = (beginingLocation.x - finalLocation.x)
-    let pointY = (beginingLocation.y - finalLocation.y)
+    let pointX = (finalLocation.x - beginingLocation.x)
+    let pointY = (finalLocation.y - beginingLocation.y)
     let numberOfBlocks = pointX + pointY
     return numberOfBlocks
 }
 
 
-func calculateMultiBlocks(startingLocation: Location, instructions: [(CardinalDirection, Int)]) -> Location {
+func calculateMultiBlocks(startingLocation: Location, fromFacingDirection: CardinalDirection,  instructions: [(Instruction, Int)]) -> (Location, CardinalDirection) {
 
-    var tLocation = startingLocation
-    for instruction in instructions {
+    var currentFacingDirection = fromFacingDirection
+    var currentLocation = startingLocation
     
-        if instruction.0 == .north {
-        tLocation.y = tLocation.y + instruction.1
-        }else if instruction.0 == .east {
-        tLocation.x = tLocation.x + instruction.1
-        }else if instruction.0 == .south {
-        tLocation.y = tLocation.y - instruction.1
-        }else{
-        tLocation.x = tLocation.x - instruction.1
-        }
+    for (instruction, numberOfBlocks) in instructions {
+    
+    currentFacingDirection = turn(instruction, fromFacing: currentFacingDirection)
+    currentLocation = move(currentFacingDirection, currentLocation, numberOfBlocks)
+
     
     }
-   return tLocation
+   return (currentLocation, currentFacingDirection)
 
 }
+
+
+
+
+
+
+/////Step 2
+
+
+
+
+func multyTravel2(startLocation: Location, instruction: [(CardinalDirection, Int)]) -> Location {
+    
+    
+    var travelDistance = startLocation
+    
+    for (coordination, blocks) in instruction {
+    
+        switch coordination {
+        case .east:
+          travelDistance.x = travelDistance.x + blocks
+        case .west:
+            travelDistance.x = travelDistance.x - blocks
+        case .north:
+            travelDistance.y = travelDistance.y + blocks
+        case .south:
+            travelDistance.y = travelDistance.x - blocks
+        
+        }
+    }
+    return travelDistance
+}
+
+
+////////////Turn2 fuction for Cardinal Direction
+
+
+func turnWithBadInstructions(_ startingPoint: Location, badInstructions: [(BadInstructions, Int)]) -> Location {
+    var currentFacingDirection: BadInstructions = .north
+    var currentLocation = startingPoint
+    for (coordination, blocks) in badInstructions {
+    
+        switch coordination {
+        case .north:
+            currentLocation.y = currentLocation.y + blocks
+            currentFacingDirection = .north
+        case .east:
+            currentLocation.x = currentLocation.x + blocks
+            currentFacingDirection = .east
+        case .south:
+            currentLocation.y = currentLocation.y - blocks
+            currentFacingDirection = .south
+        case .west:
+            currentLocation.x = currentLocation.x - blocks
+            currentFacingDirection = .west
+        case .left:
+            if currentFacingDirection == .north {
+                currentLocation.x = currentLocation.x - blocks
+                currentFacingDirection = .west
+            }else if currentFacingDirection == .east{
+                currentLocation.y = currentLocation.y - blocks
+                currentFacingDirection = .east
+            }else if currentFacingDirection == .south {
+                currentLocation.x = currentLocation.x + blocks
+                currentFacingDirection = .south
+            }else{
+                currentFacingDirection = .west
+                currentLocation.y = currentLocation.y - blocks
+            }
+        case .right:
+            if currentFacingDirection == .north {
+                currentLocation.x = currentLocation.x + blocks
+                currentFacingDirection = .east
+            }else if currentFacingDirection == .east{
+                currentLocation.y = currentLocation.y - blocks
+                currentFacingDirection = .south
+            }else if currentFacingDirection == .south {
+                currentLocation.x = currentLocation.x - blocks
+                currentFacingDirection = .west
+            }else{
+                currentFacingDirection = .north
+                currentLocation.y = currentLocation.y + blocks
+            }
+        }
+    }
+    return currentLocation
+}
+
+
 
 
